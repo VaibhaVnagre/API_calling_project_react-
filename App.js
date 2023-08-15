@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 
-import MoviesList from './components/MoviesList';
-import AddMovie from './components/AddMovie';
-import './App.css';
+import MoviesList from "./components/MoviesList";
+import AddMovie from "./components/AddMovie";
+import "./App.css";
 
 function App() {
   const [movies, setMovies] = useState([]);
@@ -12,25 +12,28 @@ function App() {
   const fetchMoviesHandler = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    console.log('pk') 
     try {
-      const response = await fetch('https://react-http-send-data-default-rtdb.firebaseio.com/movies.json');
+      const response = await fetch(
+        "https://react-http-send-data-default-rtdb.firebaseio.com/movies.json"
+      );
       if (!response.ok) {
-        throw new Error('Something went wrong!');
+        throw new Error("Something went wrong!");
       }
 
       const data = await response.json();
       let loaderData = [];
+       console.log(data)
 
-      for(const key in data){
+      for (const key in data) {
         loaderData.push({
-          id : key,
-          title : data[key].title,
-          openingText : data[key].openingText,
-          releaseDate : data[key].releaseDate
-        })
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releaseDate: data[key].releaseDate,
+        });
       }
       setMovies(loaderData);
-
     } catch (error) {
       setError(error.message);
     }
@@ -41,28 +44,30 @@ function App() {
     fetchMoviesHandler();
   }, [fetchMoviesHandler]);
 
+
   async function addMovieHandler(movie) {
-      const response = await fetch('https://react-http-send-data-default-rtdb.firebaseio.com/movies.json',{
-        method : 'POST',
-        body : JSON.stringify(movie)
-      })
+    const response = await fetch(
+      "https://react-http-send-data-default-rtdb.firebaseio.com/movies.json",
+      {
+        method: "POST",
+        body: JSON.stringify(movie),
+      }
+    );
     const data = await response.json();
-    console.log(data)
+    console.log(data);
   }
 
-  // async function DelDataHandeler(id){
-  //   const response = await fetch('https://react-http-send-data-default-rtdb.firebaseio.com/movies.json',{
-  //     method : "DELETE",
-  //     body : JSON.stringify(id)
-  //   })
-  //   const data = await response.json();
-  //   console.log(data);
-  // }
+  async function DelHandeler (id){
+    const response = await fetch(`https://react-http-send-data-default-rtdb.firebaseio.com/movies/${id}.json`,{
+      method : 'DELETE',
+    })
+    fetchMoviesHandler();
+  }
 
   let content = <p>Found no movies.</p>;
 
   if (movies.length > 0) {
-    content = <MoviesList movies={movies} />;
+    content = <MoviesList movies={movies} onDelete = {DelHandeler} />;
   }
 
   if (error) {
